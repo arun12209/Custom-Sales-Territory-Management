@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>54.0</apiVersion>
+    <assignments>
+        <description>Add current contact record to the list</description>
+        <name>Add_current_contact_record_to_the_list</name>
+        <label>Add current contact record to the list</label>
+        <locationX>264</locationX>
+        <locationY>518</locationY>
+        <assignmentItems>
+            <assignToReference>contactsListToUpdate</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Iterate_over_contacts_list</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Iterate_over_contacts_list</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Assign a new owner to contact ( new owner = Account owner)</description>
+        <name>Assign_a_new_owner_to_contact</name>
+        <label>Assign a new owner to contact</label>
+        <locationX>264</locationX>
+        <locationY>398</locationY>
+        <assignmentItems>
+            <assignToReference>Iterate_over_contacts_list.OwnerId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>accountRecord.OwnerId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Add_current_contact_record_to_the_list</targetReference>
+        </connector>
+    </assignments>
+    <description>This is auto launched flow invoked from the &quot;After Account Record Triggered Flow&quot; flow and updates all contacts owner related to a perticular account record.</description>
+    <interviewLabel>Update contacts owner {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Update contacts owner</label>
+    <loops>
+        <description>Iterate over the contacts record and update the owner.</description>
+        <name>Iterate_over_contacts_list</name>
+        <label>Iterate over contacts list</label>
+        <locationX>176</locationX>
+        <locationY>278</locationY>
+        <collectionReference>Get_contacts_list</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Assign_a_new_owner_to_contact</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Update_contacts_owner</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <description>Fetch all contacts related to a provided account record</description>
+        <name>Get_contacts_list</name>
+        <label>Get contacts list</label>
+        <locationX>176</locationX>
+        <locationY>158</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Iterate_over_contacts_list</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>AccountId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>accountRecord.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Contact</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <description>Update contacts owner</description>
+        <name>Update_contacts_owner</name>
+        <label>Update contacts owner</label>
+        <locationX>176</locationX>
+        <locationY>734</locationY>
+        <inputReference>contactsListToUpdate</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_contacts_list</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <description>The current account record will be passed from the &quot;After Account Record Triggered Flow&quot; flow.</description>
+        <name>accountRecord</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Account</objectType>
+    </variables>
+    <variables>
+        <description>Contacts record list to update.</description>
+        <name>contactsListToUpdate</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Contact</objectType>
+    </variables>
+</Flow>

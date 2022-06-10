@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>54.0</apiVersion>
+    <decisions>
+        <description>Check if the current record is a new record OR it is an existing one that just updated a field</description>
+        <name>Is_New_Record</name>
+        <label>Is New Record ?</label>
+        <locationX>446</locationX>
+        <locationY>335</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Yes_Created</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>isNewRecord</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.BillingPostalCode</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Invoke_Insert_Assignment_History_record_Flow</targetReference>
+            </connector>
+            <label>Yes (Created)</label>
+        </rules>
+        <rules>
+            <name>No_Updated</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.BillingPostalCode</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.BillingPostalCode</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Invoke_Update_contacts_owner_Flow</targetReference>
+            </connector>
+            <label>No (Updated)</label>
+        </rules>
+        <rules>
+            <name>No_Account_owner_update</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.OwnerId</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.OwnerId</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Invoke_Update_contacts_owner_Flow_0</targetReference>
+            </connector>
+            <label>No ( Account owner update)</label>
+        </rules>
+    </decisions>
+    <description>This is record triggered flow that will execute after an Account record is inserted or updated.</description>
+    <formulas>
+        <description>Boolean formula to check if the current record is a new record.</description>
+        <name>isNewRecord</name>
+        <dataType>Boolean</dataType>
+        <expression>ISNEW()</expression>
+    </formulas>
+    <interviewLabel>After Account Record Triggered Flow {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Account After Record Triggered Flow</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>320</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Is_New_Record</targetReference>
+        </connector>
+        <object>Account</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <subflows>
+        <description>Invoke the &quot;Insert Assignment History record&quot; Flow to create a new Assignment History record.</description>
+        <name>Invoke_Insert_Assignment_History_record_Flow</name>
+        <label>Invoke &quot;Insert Assignment History record&quot; Flow</label>
+        <locationX>50</locationX>
+        <locationY>455</locationY>
+        <flowName>Insert_Assignment_History_record</flowName>
+        <inputAssignments>
+            <name>newAccountRecord</name>
+            <value>
+                <elementReference>$Record</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>oldAccountRecord</name>
+            <value>
+                <elementReference>$Record__Prior</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
+    <subflows>
+        <description>Invoke the &quot;Insert Assignment History record&quot; Flow to create a new Assignment History record.</description>
+        <name>Invoke_Insert_Assignment_History_record_Flow_0</name>
+        <label>Invoke &quot;Insert Assignment History record&quot; Flow</label>
+        <locationX>314</locationX>
+        <locationY>695</locationY>
+        <flowName>Insert_Assignment_History_record</flowName>
+        <inputAssignments>
+            <name>newAccountRecord</name>
+            <value>
+                <elementReference>$Record</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>oldAccountRecord</name>
+            <value>
+                <elementReference>$Record__Prior</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
+    <subflows>
+        <description>Invoke the &quot;Update contacts owner&quot; Flow to update the owner of the contact.</description>
+        <name>Invoke_Update_contacts_owner_Flow</name>
+        <label>Invoke &quot;Update contacts owner&quot; Flow</label>
+        <locationX>314</locationX>
+        <locationY>455</locationY>
+        <connector>
+            <targetReference>Invoke_Update_opportunities_owner_Flow</targetReference>
+        </connector>
+        <flowName>Update_contacts_owner</flowName>
+        <inputAssignments>
+            <name>accountRecord</name>
+            <value>
+                <elementReference>$Record</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
+    <subflows>
+        <description>Invoke the &quot;Update contacts owner&quot; Flow to update the owner of the contact.</description>
+        <name>Invoke_Update_contacts_owner_Flow_0</name>
+        <label>Invoke &quot;Update contacts owner&quot; Flow</label>
+        <locationX>578</locationX>
+        <locationY>455</locationY>
+        <connector>
+            <targetReference>Invoke_Update_opportunities_owner_Flow_0</targetReference>
+        </connector>
+        <flowName>Update_contacts_owner</flowName>
+        <inputAssignments>
+            <name>accountRecord</name>
+            <value>
+                <elementReference>$Record</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
+    <subflows>
+        <description>Invoke &quot;Update opportunities owner&quot; Flow to update the opportunities owner with account owner</description>
+        <name>Invoke_Update_opportunities_owner_Flow</name>
+        <label>Invoke &quot;Update opportunities owner&quot; Flow</label>
+        <locationX>314</locationX>
+        <locationY>575</locationY>
+        <connector>
+            <targetReference>Invoke_Insert_Assignment_History_record_Flow_0</targetReference>
+        </connector>
+        <flowName>Update_opportunities_owner</flowName>
+        <inputAssignments>
+            <name>accountRecord</name>
+            <value>
+                <elementReference>$Record</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
+    <subflows>
+        <description>Invoke &quot;Update opportunities owner&quot; Flow to update the opportunities owner with account owner</description>
+        <name>Invoke_Update_opportunities_owner_Flow_0</name>
+        <label>Invoke &quot;Update opportunities owner&quot; Flow</label>
+        <locationX>578</locationX>
+        <locationY>575</locationY>
+        <flowName>Update_opportunities_owner</flowName>
+        <inputAssignments>
+            <name>accountRecord</name>
+            <value>
+                <elementReference>$Record</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
+</Flow>

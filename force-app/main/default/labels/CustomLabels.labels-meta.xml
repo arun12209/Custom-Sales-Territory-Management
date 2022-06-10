@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>Only_3_sales_representatives_at_most_can_be_assigned_to_a_single_zip_code</fullName>
+        <categories>Territory Validation Message</categories>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Only 3 sales representatives at most can be assigned to a single zip code.</shortDescription>
+        <value>Only 3 sales representatives at most can be assigned to a single zip code.</value>
+    </labels>
+</CustomLabels>
